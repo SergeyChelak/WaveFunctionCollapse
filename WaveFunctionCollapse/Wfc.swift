@@ -23,7 +23,7 @@ struct WaveFunctionCollapse {
     private(set) var tiles: [Tile] = []
     private(set) var rows: Int
     private(set) var cols: Int
-    private var grid: [Cell] = []
+    private(set) var grid: [Cell] = []
     
     private var dataSource: DataSource
     

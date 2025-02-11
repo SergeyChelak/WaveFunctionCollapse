@@ -14,6 +14,12 @@ struct WaveFunctionCollapseApp: App {
     var body: some Scene {
         WindowGroup {
             factory.rootView()
+#if os(OSX)
+                .onDisappear {
+                    NSApplication.shared.terminate(nil)
+                }
+#endif
+            
         }
     }
 }

@@ -42,7 +42,9 @@ struct ContentView<VM: WFCViewModel>: View {
                 Text("Redo")
             }
             LazyVGrid(columns: columns, spacing: 2) {
-                //
+                ForEach(viewModel.cells.indices, id: \.self) {
+                    CellView(cell: viewModel.cells[$0])
+                }
             }
         }
     }
@@ -74,6 +76,10 @@ struct ContentView<VM: WFCViewModel>: View {
         
         func load() {
             //
+        }
+        
+        var cells: [Cell] {
+            []
         }
     }
     

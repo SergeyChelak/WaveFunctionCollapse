@@ -10,6 +10,7 @@ import Foundation
 protocol WFCViewModel: ObservableObject {
     var rows: Int { get }
     var cols: Int { get }
+    var cells: [Cell] { get }
     var error: Error? { get }
     func redo()
     func start()
@@ -20,6 +21,8 @@ class ContentViewModel: WFCViewModel {
     private var wfc: WaveFunctionCollapse
     @Published
     private(set) var error: Error?
+    @Published
+    private(set) var cells: [Cell] = []
     
     var rows: Int {
         wfc.rows
@@ -41,6 +44,7 @@ class ContentViewModel: WFCViewModel {
     func start() {
         wfc.start()
         print("Completed")
+        self.cells = wfc.grid
     }
     
     func load() {
