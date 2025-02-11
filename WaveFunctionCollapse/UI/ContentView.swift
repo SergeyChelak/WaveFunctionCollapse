@@ -14,7 +14,8 @@ struct ContentView<VM: WFCViewModel>: View {
     private var columns: [GridItem] {
         (0..<viewModel.cols)
             .map { _ in
-                GridItem(.fixed(56))
+//                GridItem(.adaptive(minimum: 0, maximum: 46))
+                GridItem(.fixed(46))
             }
     }
     
@@ -41,8 +42,8 @@ struct ContentView<VM: WFCViewModel>: View {
             } label: {
                 Text("Redo")
             }
-            ScrollView(showsIndicators: false) {
-                LazyVGrid(columns: columns, spacing: 2) {
+            ScrollView([.horizontal, .vertical], showsIndicators: false) {
+                LazyVGrid(columns: columns, spacing: 0) {
                     ForEach(viewModel.cells.indices, id: \.self) {
                         CellView(cell: viewModel.cells[$0])
                     }
