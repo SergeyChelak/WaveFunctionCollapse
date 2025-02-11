@@ -1,0 +1,132 @@
+[
+    {
+        "canRotate": true,
+        "name": "0",
+        "edges": [
+            "AAA",
+            "AAA",
+            "AAA",
+            "AAA"
+        ]
+    },
+    {
+        "canRotate": true,
+        "name": "1",
+        "edges": [
+            "BBB",
+            "BBB",
+            "BBB",
+            "BBB"
+        ]
+    },
+    {
+        "canRotate": true,
+        "name": "2",
+        "edges": [
+            "BBB",
+            "BCB",
+            "BBB",
+            "BBB"
+        ]
+    },
+    {
+        "canRotate": true,
+        "name": "3",
+        "edges": [
+            "BBB",
+            "BDB",
+            "BBB",
+            "BDB"
+        ]
+    },
+    {
+        "canRotate": true,
+        "name": "4",
+        "edges": [
+            "ABB",
+            "BCB",
+            "BBA",
+            "AAA"
+        ]
+    },
+    {
+        "canRotate": true,
+        "name": "5",
+        "edges": [
+            "ABB",
+            "BBB",
+            "BBB",
+            "BBA"
+        ]
+    },
+    {
+        "canRotate": true,
+        "name": "6",
+        "edges": [
+            "BBB",
+            "BCB",
+            "BBB",
+            "BCB"
+        ]
+    },
+    {
+        "canRotate": true,
+        "name": "7",
+        "edges": [
+            "BDB",
+            "BCB",
+            "BDB",
+            "BCB"
+        ]
+    },
+    {
+        "canRotate": true,
+        "name": "8",
+        "edges": [
+            "BDB",
+            "BBB",
+            "BCB",
+            "BBB"
+        ]
+    },
+    {
+        "canRotate": true,
+        "name": "9",
+        "edges": [
+            "BCB",
+            "BCB",
+            "BBB",
+            "BCB"
+        ]
+    },
+    {
+        "canRotate": true,
+        "name": "10",
+        "edges": [
+            "BCB",
+            "BCB",
+            "BCB",
+            "BCB"
+        ]
+    },
+    {
+        "canRotate": true,
+        "name": "11",
+        "edges": [
+            "BCB",
+            "BCB",
+            "BBB",
+            "BBB"
+        ]
+    },
+    {
+        "canRotate": true,
+        "name": "12",
+        "edges": [
+            "BBB",
+            "BCB",
+            "BBB",
+            "BCB"
+        ]
+    }
+]
