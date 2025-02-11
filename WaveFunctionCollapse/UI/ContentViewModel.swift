@@ -43,7 +43,6 @@ class ContentViewModel: WFCViewModel {
     
     func start() {
         wfc.start()
-        print("Completed")
         self.cells = wfc.grid
     }
     

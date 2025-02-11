@@ -17,7 +17,7 @@ struct ContentView<VM: WFCViewModel>: View {
                 GridItem(.fixed(56))
             }
     }
-
+    
     var body: some View {
         rootView
             .padding()
@@ -41,9 +41,11 @@ struct ContentView<VM: WFCViewModel>: View {
             } label: {
                 Text("Redo")
             }
-            LazyVGrid(columns: columns, spacing: 2) {
-                ForEach(viewModel.cells.indices, id: \.self) {
-                    CellView(cell: viewModel.cells[$0])
+            ScrollView(showsIndicators: false) {
+                LazyVGrid(columns: columns, spacing: 2) {
+                    ForEach(viewModel.cells.indices, id: \.self) {
+                        CellView(cell: viewModel.cells[$0])
+                    }
                 }
             }
         }

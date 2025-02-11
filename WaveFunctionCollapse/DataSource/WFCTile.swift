@@ -14,6 +14,19 @@ enum WFCRotation: Int, CaseIterable {
         return Self(rawValue: rawValue)!
     }
     
+    var degrees: Int {
+        switch self {
+        case .zero:
+            0
+        case .degree90:
+            90
+        case .degree180:
+            180
+        case .degree270:
+            270
+        }
+    }
+    
     func rotated(_ times: Int = 1) -> Self {
         Self.from(self.rawValue + times)
     }    
@@ -21,6 +34,7 @@ enum WFCRotation: Int, CaseIterable {
 
 struct WFCTile<Edge> {
     let name: TileName
+    let filename: String
     let rotation: WFCRotation
     let upEdge: Edge
     let rightEdge: Edge

@@ -24,9 +24,8 @@ struct CellView: View {
     }
     
     private func imageView(_ tile: Tile) -> some View {
-        VStack {
-            Text("TODO")
-        }
+        Image(tile.filename)
+            .rotationEffect(.degrees(Double(tile.rotation.degrees)))
     }
 }
 

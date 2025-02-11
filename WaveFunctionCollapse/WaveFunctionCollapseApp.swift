@@ -19,7 +19,6 @@ struct WaveFunctionCollapseApp: App {
                     NSApplication.shared.terminate(nil)
                 }
 #endif
-            
         }
     }
 }
@@ -29,7 +28,7 @@ protocol Factory {
 }
 
 class WFCFactory: Factory {
-    private let rows = 20
+    private let rows = 15
     private let cols = 20
     
     private let dataSource = TileDataSource(filename: "tiles")

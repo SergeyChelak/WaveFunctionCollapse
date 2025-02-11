@@ -93,6 +93,7 @@ fileprivate extension Tile {
     static func from(_ dto: TileDTO) -> Self {
         Tile(
             name: dto.name,
+            filename: dto.name,
             rotation: .zero,
             upEdge: dto.edges[0],
             rightEdge: dto.edges[1],
@@ -107,6 +108,7 @@ fileprivate extension Tile {
         let name = modified(name: self.name, for: rotation)
         return Tile(
             name: name,
+            filename: self.filename,
             rotation: rotation,
             upEdge: edges[0],
             rightEdge: edges[1],
@@ -117,15 +119,6 @@ fileprivate extension Tile {
 }
 
 fileprivate func modified(name: String, for rotation: WFCRotation) -> String {
-    let val = switch rotation {
-    case .zero:
-        "0"
-    case .degree90:
-        "90"
-    case .degree180:
-        "180"
-    case .degree270:
-        "270"
-    }
+    let val = String(rotation.degrees)
     return "\(name)+\(val)"
 }
