@@ -10,9 +10,9 @@ import Foundation
 struct Cell {
     var options: [Tile]
     
-//    var isCollapsed: Bool {
-//        entropy == 1
-//    }
+    var isCollapsed: Bool {
+        entropy == 1
+    }
     
     var entropy: Int {
         options.count
@@ -21,16 +21,20 @@ struct Cell {
 
 struct WaveFunctionCollapse {
     private(set) var tiles: [Tile] = []
-    private(set) var rows: Int
-    private(set) var cols: Int
     private(set) var grid: [Cell] = []
-    
+    private let size: Size
     private var dataSource: DataSource
     
     init(dataSource: DataSource, rows: Int, cols: Int) {
         self.dataSource = dataSource
-        self.rows = rows
-        self.cols = cols
+        self.size = Size(rows: rows, cols: cols)
+    }
+    
+    var rows: Int {
+        size.rows
+    }
+    var cols: Int {
+        size.cols
     }
     
     mutating func load() throws {
@@ -46,9 +50,24 @@ struct WaveFunctionCollapse {
             }
             grid[index].options = [option]
             
-        
-            // TODO: update adjacent cells
+            // update entropy for adjacent cells
+            let position: Position = .from(index: index, of: size)
+            position.adjacent
+                .filter {
+                    $0.row > 0 && $0.col > 0 && $0.row < rows && $0.col < cols
+                }
+                .filter {
+                    !grid[$0.index(in: size)].isCollapsed
+                }
+                .forEach {
+                    updateCell(at: $0)
+                }
         }
+    }
+    
+    private mutating func updateCell(at position: Position) {
+        // TODO: calculate entropy
+//        fatalError()
     }
     
     mutating func reset() {
@@ -78,4 +97,45 @@ struct WaveFunctionCollapse {
         }
         return indices.randomElement()
     }
+}
+
+struct Position {
+    var row: Int
+    var col: Int
+    
+    static func from(index: Int, of size: Size) -> Self {
+        Self(
+            row: index / size.cols,
+            col: index % size.cols
+        )
+    }
+    
+    func index(in size: Size) -> Int {
+        row * size.cols + col
+    }
+    
+    var up: Self {
+        Self(row: row - 1, col: col)
+    }
+    
+    var down: Self {
+        Self(row: row + 1, col: col)
+    }
+    
+    var left: Self {
+        Self(row: row, col: col - 1)
+    }
+    
+    var right: Self {
+        Self(row: row, col: col + 1)
+    }
+    
+    var adjacent: [Position] {
+        [up, down, left, right]
+    }
+}
+
+struct Size {
+    let rows: Int
+    let cols: Int
 }
