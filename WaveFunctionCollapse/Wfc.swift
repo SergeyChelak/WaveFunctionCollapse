@@ -69,12 +69,19 @@ struct WaveFunctionCollapse {
             mergedOptions(position.left) { $0.rightConstraints }
         ]
             .compactMap { $0 }
-            .reduce(TileNameSet()) { acc, val in
-                // ???
-                acc.intersection(val)
+            .reduce(nil) { (acc: TileNameSet?, val: TileNameSet) -> TileNameSet in
+                guard let acc else {
+                    return val
+                }
+                return acc.intersection(val)
             }
         
-        assert(!nextOptions.isEmpty, "intersection is empty...")
+        guard let nextOptions else {
+            // TODO: ???
+            return
+        }
+//        print("--------------------------")
+//        assert(!nextOptions.isEmpty, "intersection is empty...")
         
         grid[position.index(in: size)].options = nextOptions
     }

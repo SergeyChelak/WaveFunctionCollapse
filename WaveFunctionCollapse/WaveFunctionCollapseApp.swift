@@ -28,8 +28,8 @@ protocol Factory {
 }
 
 class WFCFactory: Factory {
-    private let rows = 16
-    private let cols = 20
+    private let rows = 17
+    private let cols = 21
     
     private let dataSource = TileDataSource(filename: "tiles")
 
