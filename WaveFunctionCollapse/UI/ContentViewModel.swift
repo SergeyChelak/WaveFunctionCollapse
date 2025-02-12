@@ -87,12 +87,20 @@ class ContentViewModel: WFCViewModel {
     
     func load() {
         self.state = .loading
+        Task {
+            await loadAndStart()
+        }
+    }
+    
+    private func loadAndStart() async {
         do {
             try wfc.load()
-            start()
+            await processWfc()
         } catch {
-            self.error = error
-            self.state = .ready
+            Task { @MainActor in
+                self.error = error
+                self.state = .ready
+            }
         }
     }
 }
