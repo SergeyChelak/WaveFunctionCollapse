@@ -22,19 +22,12 @@ struct Cell {
 struct WaveFunctionCollapse {
     private(set) var tiles: [Tile] = []
     private(set) var grid: [Cell] = []
-    private let size: Size
+    let size: Size
     private var dataSource: DataSource
     
     init(dataSource: DataSource, rows: Int, cols: Int) {
         self.dataSource = dataSource
         self.size = Size(rows: rows, cols: cols)
-    }
-    
-    var rows: Int {
-        size.rows
-    }
-    var cols: Int {
-        size.cols
     }
     
     mutating func load() throws {
@@ -54,10 +47,7 @@ struct WaveFunctionCollapse {
             let position: Position = .from(index: index, of: size)
             position.adjacent
                 .filter {
-                    $0.row > 0 && $0.col > 0 && $0.row < rows && $0.col < cols
-                }
-                .filter {
-                    !grid[$0.index(in: size)].isCollapsed
+                    $0.isInside(of: size) && !grid[$0.index(in: size)].isCollapsed 
                 }
                 .forEach {
                     updateCell(at: $0)
@@ -72,7 +62,10 @@ struct WaveFunctionCollapse {
     
     mutating func reset() {
         let defaultCell = Cell(options: tiles)
-        self.grid = [Cell].init(repeating: defaultCell, count: rows * cols)
+        self.grid = [Cell].init(
+            repeating: defaultCell,
+            count: size.count
+        )
     }
     
     private func getFittestCellIndex() -> Int? {
@@ -114,6 +107,10 @@ struct Position {
         row * size.cols + col
     }
     
+    func isInside(of size: Size) -> Bool {
+        row > 0 && col > 0 && row < size.rows && col < size.cols
+    }
+    
     var up: Self {
         Self(row: row - 1, col: col)
     }
@@ -138,4 +135,8 @@ struct Position {
 struct Size {
     let rows: Int
     let cols: Int
+    
+    var count: Int {
+        rows * cols
+    }
 }

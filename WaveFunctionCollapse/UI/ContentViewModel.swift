@@ -25,11 +25,11 @@ class ContentViewModel: WFCViewModel {
     private(set) var cells: [Cell] = []
     
     var rows: Int {
-        wfc.rows
+        wfc.size.rows
     }
     
     var cols: Int {
-        wfc.cols
+        wfc.size.cols
     }
     
     init(wfc: WaveFunctionCollapse) {
