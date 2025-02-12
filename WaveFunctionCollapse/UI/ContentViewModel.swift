@@ -7,10 +7,16 @@
 
 import Foundation
 
+enum CellModel {
+    case collapsed(Tile)
+    case invalid
+    case superposition(Int)
+}
+
 protocol WFCViewModel: ObservableObject {
     var rows: Int { get }
     var cols: Int { get }
-    var cells: [Cell] { get }
+    var cells: [CellModel] { get }
     var error: Error? { get }
     func redo()
     func start()
@@ -22,7 +28,7 @@ class ContentViewModel: WFCViewModel {
     @Published
     private(set) var error: Error?
     @Published
-    private(set) var cells: [Cell] = []
+    private(set) var cells: [CellModel] = []
     
     var rows: Int {
         wfc.size.rows
@@ -44,6 +50,17 @@ class ContentViewModel: WFCViewModel {
     func start() {
         wfc.start()
         self.cells = wfc.grid
+            .map {
+                let count = $0.options.count
+                return switch count {
+                case 0:
+                    CellModel.invalid
+                case 1:
+                    CellModel.collapsed(wfc.tile(for: $0.options.first!))
+                default:
+                    CellModel.superposition(count)
+                }
+            }
     }
     
     func load() {

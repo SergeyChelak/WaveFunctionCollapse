@@ -81,7 +81,7 @@ struct ContentView<VM: WFCViewModel>: View {
             //
         }
         
-        var cells: [Cell] {
+        var cells: [CellModel] {
             []
         }
     }

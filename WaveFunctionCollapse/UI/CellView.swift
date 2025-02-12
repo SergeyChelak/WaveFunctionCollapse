@@ -8,14 +8,13 @@
 import SwiftUI
 
 struct CellView: View {
-    let cell: Cell
+    let cell: CellModel
     
     var body: some View {
-        let count = cell.options.count
-        switch count {
-        case 0: textView("N/A")
-        case 1: imageView(cell.options[0])
-        default: textView(String(count))
+        switch cell {
+        case .invalid: textView("N/A")
+        case .collapsed(let tile): imageView(tile)
+        case .superposition(let count): textView(String(count))
         }
     }
     
@@ -30,5 +29,5 @@ struct CellView: View {
 }
 
 #Preview {
-    CellView(cell: Cell(options: []))
+    CellView(cell: .invalid)
 }

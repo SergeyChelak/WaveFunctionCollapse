@@ -55,24 +55,28 @@ func setupConstrains(_ tiles: inout [Tile]) {
         first == String(second.reversed())
     }
     
-    for var tile in tiles {
+    for i in tiles.indices {
         for other in tiles {
-            if isMatchEdges(tile.upEdge, other.downEdge) {
-                tile.upConstraints.insert(other.name)
+            if isMatchEdges(tiles[i].upEdge, other.downEdge) {
+                tiles[i].upConstraints.insert(other.name)
             }
             
-            if isMatchEdges(tile.rightEdge, other.leftEdge) {
-                tile.rightConstraints.insert(other.name)
+            if isMatchEdges(tiles[i].rightEdge, other.leftEdge) {
+                tiles[i].rightConstraints.insert(other.name)
             }
             
-            if isMatchEdges(tile.downEdge, other.upEdge) {
-                tile.downConstraints.insert(other.name)
+            if isMatchEdges(tiles[i].downEdge, other.upEdge) {
+                tiles[i].downConstraints.insert(other.name)
             }
             
-            if isMatchEdges(tile.leftEdge, other.rightEdge) {
-                tile.leftConstraints.insert(other.name)
+            if isMatchEdges(tiles[i].leftEdge, other.rightEdge) {
+                tiles[i].leftConstraints.insert(other.name)
             }
         }
+        assert(!tiles[i].upConstraints.isEmpty, "up constraints are empty")
+        assert(!tiles[i].downConstraints.isEmpty, "down constraints are empty")
+        assert(!tiles[i].leftConstraints.isEmpty, "left constraints are empty")
+        assert(!tiles[i].rightConstraints.isEmpty, "right constraints are empty")
     }
 }
 

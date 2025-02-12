@@ -8,7 +8,7 @@
 import Foundation
 
 struct Cell {
-    var options: [Tile]
+    var options: Set<TileName>
     
     var isCollapsed: Bool {
         entropy == 1
@@ -19,8 +19,10 @@ struct Cell {
     }
 }
 
+typealias TileNameSet = Set<TileName>
+
 struct WaveFunctionCollapse {
-    private(set) var tiles: [Tile] = []
+    private(set) var tiles: [TileName: Tile] = [:]
     private(set) var grid: [Cell] = []
     let size: Size
     private var dataSource: DataSource
@@ -31,7 +33,11 @@ struct WaveFunctionCollapse {
     }
     
     mutating func load() throws {
-        self.tiles = try dataSource.fetchTiles()
+        let sequence = try dataSource.fetchTiles()
+            .map {
+                ($0.name, $0)
+            }
+        tiles = Dictionary(uniqueKeysWithValues: sequence)
         reset()
     }
             
@@ -47,7 +53,7 @@ struct WaveFunctionCollapse {
             let position: Position = .from(index: index, of: size)
             position.adjacent
                 .filter {
-                    $0.isInside(of: size) && !grid[$0.index(in: size)].isCollapsed 
+                    $0.isInside(of: size) && !grid[$0.index(in: size)].isCollapsed
                 }
                 .forEach {
                     updateCell(at: $0)
@@ -56,21 +62,59 @@ struct WaveFunctionCollapse {
     }
     
     private mutating func updateCell(at position: Position) {
-        // TODO: calculate entropy
-//        fatalError()
+        let nextOptions = [
+            mergedOptions(position.up) { $0.downConstraints },
+            mergedOptions(position.right) { $0.leftConstraints },
+            mergedOptions(position.down) { $0.upConstraints },
+            mergedOptions(position.left) { $0.rightConstraints }
+        ]
+            .compactMap { $0 }
+            .reduce(TileNameSet()) { acc, val in
+                // ???
+                acc.intersection(val)
+            }
+        
+        assert(!nextOptions.isEmpty, "intersection is empty...")
+        
+        grid[position.index(in: size)].options = nextOptions
+    }
+    
+    private func mergedOptions(
+        _ position: Position,
+        mapper: (Tile) -> TileNameSet
+    ) -> TileNameSet? {
+        guard position.isInside(of: size) else {
+            return nil
+        }
+        let cell = grid[position.index(in: size)]
+        return cell.options
+            .compactMap {
+                tiles[$0]
+            }
+            .map {
+                mapper($0)
+            }
+            .reduce(TileNameSet()) { acc, val in
+                acc.union(val)
+            }
     }
     
     mutating func reset() {
-        let defaultCell = Cell(options: tiles)
         self.grid = [Cell].init(
-            repeating: defaultCell,
+            repeating: defaultCell(),
             count: size.count
         )
+    }
+    
+    private func defaultCell() -> Cell {
+        let options = Set(tiles.keys)
+        return Cell(options: options)
     }
     
     private func getFittestCellIndex() -> Int? {
         // candidate's indices with min entropy
         var indices: [Int] = []
+        indices.reserveCapacity(size.count)
         for (idx, cell) in grid.enumerated() {
             let cellEntropy = cell.entropy
             guard cellEntropy > 1 else {
@@ -89,6 +133,10 @@ struct WaveFunctionCollapse {
             }
         }
         return indices.randomElement()
+    }
+    
+    func tile(for name: String) -> Tile {
+        tiles[name]!
     }
 }
 
