@@ -29,7 +29,7 @@ protocol Factory {
 
 class WFCFactory: Factory {
     private let rows = 17
-    private let cols = 21
+    private let cols = 28
     
     private let dataSource = TileDataSource(filename: "tiles")
 

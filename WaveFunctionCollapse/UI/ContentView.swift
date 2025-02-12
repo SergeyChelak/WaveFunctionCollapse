@@ -14,7 +14,6 @@ struct ContentView<VM: WFCViewModel>: View {
     private var columns: [GridItem] {
         (0..<viewModel.cols)
             .map { _ in
-//                GridItem(.adaptive(minimum: 0, maximum: 46))
                 GridItem(.fixed(46))
             }
     }
@@ -31,23 +30,44 @@ struct ContentView<VM: WFCViewModel>: View {
         if let error = viewModel.error {
             AnyView(errorView(error))
         } else {
-            AnyView(gridView())
+            switch viewModel.state {
+            case .ready:
+                AnyView(gridView())
+            default:
+                AnyView(activityView())
+            }
+        }
+    }
+    
+    private func activityView() -> some View {
+        VStack {
+            Text("Please wait")
+            ProgressView()
+                .progressViewStyle(.circular)
         }
     }
     
     private func gridView() -> some View {
         VStack(spacing: 20) {
-            Button {
-                viewModel.redo()
-            } label: {
-                Text("Redo")
-            }
+            panelView()
             ScrollView([.horizontal, .vertical], showsIndicators: false) {
                 LazyVGrid(columns: columns, spacing: 0) {
                     ForEach(viewModel.cells.indices, id: \.self) {
                         CellView(cell: viewModel.cells[$0])
                     }
                 }
+            }
+        }
+    }
+    
+    private func panelView() -> some View {
+        HStack(spacing: 50) {
+            Text("Rendered after \(viewModel.attempts) attempts")
+            
+            Button {
+                viewModel.redo()
+            } label: {
+                Text("Redo")
             }
         }
     }
@@ -59,6 +79,8 @@ struct ContentView<VM: WFCViewModel>: View {
 
 #Preview {
     class MockVM: WFCViewModel {
+        let attempts: Int = 0
+        let state: ContentViewState = .ready
         var error: Error? = nil
         
         var rows: Int {

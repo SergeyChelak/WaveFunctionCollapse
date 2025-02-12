@@ -14,6 +14,8 @@ enum CellModel {
 }
 
 protocol WFCViewModel: ObservableObject {
+    var state: ContentViewState { get }
+    var attempts: Int { get }
     var rows: Int { get }
     var cols: Int { get }
     var cells: [CellModel] { get }
@@ -23,12 +25,20 @@ protocol WFCViewModel: ObservableObject {
     func load()
 }
 
+enum ContentViewState {
+    case loading, processing, ready
+}
+
 class ContentViewModel: WFCViewModel {
     private var wfc: WaveFunctionCollapse
     @Published
     private(set) var error: Error?
     @Published
     private(set) var cells: [CellModel] = []
+    @Published
+    private(set) var state: ContentViewState = .ready
+    
+    private(set) var attempts: Int = 0
     
     var rows: Int {
         wfc.size.rows
@@ -48,8 +58,15 @@ class ContentViewModel: WFCViewModel {
     }
     
     func start() {
-        wfc.start()
-        self.cells = wfc.grid
+        self.state = .loading
+        Task {
+            await processWfc()
+        }
+    }
+    
+    private func processWfc() async {
+        let attempts = wfc.startWithRetry()
+        let result = wfc.grid
             .map {
                 let count = $0.options.count
                 return switch count {
@@ -61,14 +78,21 @@ class ContentViewModel: WFCViewModel {
                     CellModel.superposition(count)
                 }
             }
+        Task { @MainActor in
+            self.attempts = attempts
+            self.cells = result
+            self.state = .ready
+        }
     }
     
     func load() {
+        self.state = .loading
         do {
             try wfc.load()
             start()
         } catch {
             self.error = error
+            self.state = .ready
         }
     }
 }

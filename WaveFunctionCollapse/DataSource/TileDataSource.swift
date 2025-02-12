@@ -7,10 +7,6 @@
 
 import Foundation
 
-enum WFCError: Error {
-    case fileNotFound
-}
-
 protocol DataSource {
     func fetchTiles() throws -> [Tile]
 }
@@ -41,11 +37,18 @@ struct TileDataSource: DataSource {
 func rotate(tiles: [Tile]) -> [Tile] {
     var output: [Tile] = []
     for tile in tiles {
-        let array = WFCRotation.allCases
-            .map {
-                tile.rotated(times: $0.rawValue)
+        var keys: Set<TileName> = []
+        var collection: [Tile] = []
+        for rotation in WFCRotation.allCases {
+            let rotatedTile = tile.rotated(times: rotation.rawValue)
+            let key = rotatedTile.joinedEdges
+            if keys.contains(key) {
+                continue
             }
-        output.append(contentsOf: array)
+            keys.insert(key)
+            collection.append(rotatedTile)
+        }
+        output.append(contentsOf: collection)
     }
     return output
 }
@@ -119,6 +122,10 @@ fileprivate extension Tile {
             downEdge: edges[2],
             leftEdge: edges[3]
         )
+    }
+    
+    var joinedEdges: String {
+        [upEdge, rightEdge, downEdge, leftEdge].joined(separator: "||")
     }
 }
 

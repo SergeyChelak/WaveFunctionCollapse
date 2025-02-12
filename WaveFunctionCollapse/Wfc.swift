@@ -40,8 +40,22 @@ struct WaveFunctionCollapse {
         tiles = Dictionary(uniqueKeysWithValues: sequence)
         reset()
     }
+    
+    mutating func startWithRetry() -> Int {
+        var attempts = 0
+        while true {
+            attempts += 1
+            do {
+                try start()
+                break
+            } catch {
+                reset()
+            }
+        }
+        return attempts
+    }
             
-    mutating func start() {
+    private mutating func start() throws {
         while let index = getFittestCellIndex() {
             // collapse picked cell
             guard let option = grid[index].options.randomElement() else {
@@ -49,20 +63,25 @@ struct WaveFunctionCollapse {
             }
             grid[index].options = [option]
             
-            // update entropy for adjacent cells
-            let position: Position = .from(index: index, of: size)
-            position.adjacent
-                .filter {
-                    $0.isInside(of: size) && !grid[$0.index(in: size)].isCollapsed
+            var nextGrid = grid
+            for row in 0..<size.rows {
+                for col in 0..<size.cols {
+                    let pos = Position(row: row, col: col)
+                    if grid[pos.index(in: size)].isCollapsed {
+                        continue
+                    }
+                    guard let options = updatedOptions(for: pos), !options.isEmpty else {
+                        throw WFCError.uncollapsible
+                    }
+                    nextGrid[pos.index(in: size)].options = options
                 }
-                .forEach {
-                    updateCell(at: $0)
-                }
+            }
+            self.grid = nextGrid
         }
     }
     
-    private mutating func updateCell(at position: Position) {
-        let nextOptions = [
+    private mutating func updatedOptions(for position: Position) -> TileNameSet? {
+        [
             mergedOptions(position.up) { $0.downConstraints },
             mergedOptions(position.right) { $0.leftConstraints },
             mergedOptions(position.down) { $0.upConstraints },
@@ -75,15 +94,6 @@ struct WaveFunctionCollapse {
                 }
                 return acc.intersection(val)
             }
-        
-        guard let nextOptions else {
-            // TODO: ???
-            return
-        }
-//        print("--------------------------")
-//        assert(!nextOptions.isEmpty, "intersection is empty...")
-        
-        grid[position.index(in: size)].options = nextOptions
     }
     
     private func mergedOptions(
@@ -163,7 +173,7 @@ struct Position {
     }
     
     func isInside(of size: Size) -> Bool {
-        row > 0 && col > 0 && row < size.rows && col < size.cols
+        row >= 0 && col >= 0 && row < size.rows && col < size.cols
     }
     
     var up: Self {
