@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import DequeModule
 
 struct Cell {
     var options: Set<TileName>
@@ -62,21 +63,33 @@ struct WaveFunctionCollapse {
                 break
             }
             grid[index].options = [option]
-            
-            var nextGrid = grid
-            for row in 0..<size.rows {
-                for col in 0..<size.cols {
-                    let pos = Position(row: row, col: col)
-                    if grid[pos.index(in: size)].isCollapsed {
-                        continue
-                    }
-                    guard let options = updatedOptions(for: pos), !options.isEmpty else {
-                        throw WFCError.uncollapsible
-                    }
-                    nextGrid[pos.index(in: size)].options = options
+
+            var seen: Set<Int> = [index]
+            var affected: Deque<Position> = Deque(
+                Position
+                    .from(index: index, of: size)
+                    .adjacent(in: size)
+            )
+            while let position = affected.popFirst() {
+                let i = position.index(in: size)
+                guard !seen.contains(i), !grid[i].isCollapsed else {
+                    continue
                 }
+                seen.insert(i)
+                guard let options = updatedOptions(for: position),
+                      !options.isEmpty else {
+                    throw WFCError.uncollapsible
+                }
+                if options == grid[i].options {
+                    continue
+                }
+                grid[i].options = options
+                position
+                    .adjacent(in: size)
+                    .forEach {
+                        affected.append($0)
+                    }
             }
-            self.grid = nextGrid
         }
     }
     
@@ -192,8 +205,11 @@ struct Position {
         Self(row: row, col: col + 1)
     }
     
-    var adjacent: [Position] {
+    func adjacent(in size: Size) -> [Position] {
         [up, down, left, right]
+            .filter {
+                $0.isInside(of: size)
+            }
     }
 }
 

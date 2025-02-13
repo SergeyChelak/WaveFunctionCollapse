@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		A5B1DD2A2D5E879C006B7CD2 /* DequeModule in Frameworks */ = {isa = PBXBuildFile; productRef = A5B1DD292D5E879C006B7CD2 /* DequeModule */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		A54392952D5A96FC0033A735 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -39,6 +43,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A5B1DD2A2D5E879C006B7CD2 /* DequeModule in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -57,6 +62,7 @@
 			children = (
 				A543923A2D5150D00033A735 /* WaveFunctionCollapse */,
 				A54392922D5A96FC0033A735 /* WaveFunctionCollapseTests */,
+				A5B1DD282D5E879C006B7CD2 /* Frameworks */,
 				A54392392D5150D00033A735 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -68,6 +74,13 @@
 				A54392912D5A96FC0033A735 /* WaveFunctionCollapseTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		A5B1DD282D5E879C006B7CD2 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -90,6 +103,7 @@
 			);
 			name = WaveFunctionCollapse;
 			packageProductDependencies = (
+				A5B1DD292D5E879C006B7CD2 /* DequeModule */,
 			);
 			productName = WaveFunctionCollapse;
 			productReference = A54392382D5150D00033A735 /* WaveFunctionCollapse.app */;
@@ -146,6 +160,9 @@
 			);
 			mainGroup = A543922F2D5150D00033A735;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				A5B1DD272D5E85BF006B7CD2 /* XCRemoteSwiftPackageReference "swift-collections" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = A54392392D5150D00033A735 /* Products */;
 			projectDirPath = "";
@@ -463,6 +480,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		A5B1DD272D5E85BF006B7CD2 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-collections.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.1.4;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		A5B1DD292D5E879C006B7CD2 /* DequeModule */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = A5B1DD272D5E85BF006B7CD2 /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = DequeModule;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = A54392302D5150D00033A735 /* Project object */;
 }
