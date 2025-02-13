@@ -8,13 +8,9 @@
 import Foundation
 import SwiftUI
 
-protocol Factory {
-    func rootView() -> AnyView
-}
-
 class WFCFactory: Factory {
-    private let rows = 30
-    private let cols = 30
+    private let rows = 17
+    private let cols = 28
     
     private let dataSource = TileDataSource(filename: "tiles")
 

@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct TileDTO: Codable {
+fileprivate struct TileDTO: Codable {
     let name: String
     let canRotate: Bool
     let edges: [String]
