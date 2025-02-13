@@ -8,18 +8,6 @@
 import Foundation
 import DequeModule
 
-struct Cell {
-    var options: Set<TileName>
-    
-    var isCollapsed: Bool {
-        entropy == 1
-    }
-    
-    var entropy: Int {
-        options.count
-    }
-}
-
 typealias TileNameSet = Set<TileName>
 
 struct WaveFunctionCollapse {
@@ -54,6 +42,22 @@ struct WaveFunctionCollapse {
             }
         }
         return attempts
+    }
+    
+    mutating func reset() {
+        self.grid = [Cell].init(
+            repeating: defaultCell(),
+            count: size.count
+        )
+    }
+    
+    private func defaultCell() -> Cell {
+        let options = Set(tiles.keys)
+        return Cell(options: options)
+    }
+        
+    func tile(for name: String) -> Tile? {
+        tiles[name]
     }
             
     private mutating func start() throws {
@@ -93,6 +97,30 @@ struct WaveFunctionCollapse {
         }
     }
     
+    private func getFittestCellIndex() -> Int? {
+        // candidate's indices with min entropy
+        var indices: [Int] = []
+        indices.reserveCapacity(size.count)
+        for (idx, cell) in grid.enumerated() {
+            let cellEntropy = cell.entropy
+            guard cellEntropy > 1 else {
+                continue
+            }
+            guard let storedIndex = indices.first else {
+                indices.append(idx)
+                continue
+            }
+            let minEntropy = grid[storedIndex].entropy
+            if minEntropy == cellEntropy {
+                indices.append(idx)
+            } else if minEntropy < cellEntropy {
+                indices.removeAll()
+                indices.append(idx)
+            }
+        }
+        return indices.randomElement()
+    }
+    
     private mutating func updatedOptions(for position: Position) -> TileNameSet? {
         [
             mergedOptions(position.up) { $0.downConstraints },
@@ -127,97 +155,5 @@ struct WaveFunctionCollapse {
             .reduce(TileNameSet()) { acc, val in
                 acc.union(val)
             }
-    }
-    
-    mutating func reset() {
-        self.grid = [Cell].init(
-            repeating: defaultCell(),
-            count: size.count
-        )
-    }
-    
-    private func defaultCell() -> Cell {
-        let options = Set(tiles.keys)
-        return Cell(options: options)
-    }
-    
-    private func getFittestCellIndex() -> Int? {
-        // candidate's indices with min entropy
-        var indices: [Int] = []
-        indices.reserveCapacity(size.count)
-        for (idx, cell) in grid.enumerated() {
-            let cellEntropy = cell.entropy
-            guard cellEntropy > 1 else {
-                continue
-            }
-            guard let storedIndex = indices.first else {
-                indices.append(idx)
-                continue
-            }
-            let minEntropy = grid[storedIndex].entropy
-            if minEntropy == cellEntropy {
-                indices.append(idx)
-            } else if minEntropy < cellEntropy {
-                indices.removeAll()
-                indices.append(idx)
-            }
-        }
-        return indices.randomElement()
-    }
-    
-    func tile(for name: String) -> Tile {
-        tiles[name]!
-    }
-}
-
-struct Position {
-    var row: Int
-    var col: Int
-    
-    static func from(index: Int, of size: Size) -> Self {
-        Self(
-            row: index / size.cols,
-            col: index % size.cols
-        )
-    }
-    
-    func index(in size: Size) -> Int {
-        row * size.cols + col
-    }
-    
-    func isInside(of size: Size) -> Bool {
-        row >= 0 && col >= 0 && row < size.rows && col < size.cols
-    }
-    
-    var up: Self {
-        Self(row: row - 1, col: col)
-    }
-    
-    var down: Self {
-        Self(row: row + 1, col: col)
-    }
-    
-    var left: Self {
-        Self(row: row, col: col - 1)
-    }
-    
-    var right: Self {
-        Self(row: row, col: col + 1)
-    }
-    
-    func adjacent(in size: Size) -> [Position] {
-        [up, down, left, right]
-            .filter {
-                $0.isInside(of: size)
-            }
-    }
-}
-
-struct Size {
-    let rows: Int
-    let cols: Int
-    
-    var count: Int {
-        rows * cols
     }
 }

@@ -7,10 +7,6 @@
 
 import Foundation
 
-protocol DataSource {
-    func fetchTiles() throws -> [Tile]
-}
-
 struct TileDTO: Codable {
     let name: String
     let canRotate: Bool
@@ -34,7 +30,7 @@ struct TileDataSource: DataSource {
     }
 }
 
-func rotate(tiles: [Tile]) -> [Tile] {
+fileprivate func rotate(tiles: [Tile]) -> [Tile] {
     var output: [Tile] = []
     for tile in tiles {
         var keys: Set<TileName> = []
@@ -53,7 +49,7 @@ func rotate(tiles: [Tile]) -> [Tile] {
     return output
 }
 
-func setupConstrains(_ tiles: inout [Tile]) {
+fileprivate func setupConstrains(_ tiles: inout [Tile]) {
     let isMatchEdges = { (first: String, second: String) -> Bool  in
         first == String(second.reversed())
     }

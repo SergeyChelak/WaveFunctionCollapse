@@ -73,7 +73,12 @@ class ContentViewModel: WFCViewModel {
                 case 0:
                     CellModel.invalid
                 case 1:
-                    CellModel.collapsed(wfc.tile(for: $0.options.first!))
+                    if let first = $0.options.first,
+                       let tile = wfc.tile(for: first) {
+                        CellModel.collapsed(tile)
+                    } else {
+                        CellModel.invalid
+                    }
                 default:
                     CellModel.superposition(count)
                 }
