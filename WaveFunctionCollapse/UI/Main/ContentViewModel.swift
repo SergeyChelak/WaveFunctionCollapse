@@ -15,7 +15,7 @@ enum CellModel {
 
 protocol WFCViewModel: ObservableObject {
     var state: ContentViewState { get }
-    var attempts: Int { get }
+    var duration: Int { get }
     var rows: Int { get }
     var cols: Int { get }
     var cells: [CellModel] { get }
@@ -38,7 +38,7 @@ class ContentViewModel: WFCViewModel {
     @Published
     private(set) var state: ContentViewState = .ready
     
-    private(set) var attempts: Int = 0
+    private(set) var duration: Int = 0
     
     var rows: Int {
         wfc.size.rows
@@ -65,7 +65,15 @@ class ContentViewModel: WFCViewModel {
     }
     
     private func processWfc() async {
-        let attempts = wfc.startWithRetry()
+        let start = Date()
+        do {
+            try wfc.start()
+        } catch {
+            Task { @MainActor in
+                self.error = error
+            }
+            return
+        }
         let result = wfc.grid
             .map {
                 let count = $0.options.count
@@ -83,8 +91,11 @@ class ContentViewModel: WFCViewModel {
                     CellModel.superposition(count)
                 }
             }
+        
+        
         Task { @MainActor in
-            self.attempts = attempts
+            let duration = Date().timeIntervalSince(start)
+            self.duration = Int(duration)
             self.cells = result
             self.state = .ready
         }

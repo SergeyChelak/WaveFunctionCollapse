@@ -10,4 +10,5 @@ import Foundation
 enum WFCError: Error {
     case fileNotFound
     case uncollapsible
+    case invalidState
 }

@@ -62,7 +62,7 @@ struct ContentView<VM: WFCViewModel>: View {
     
     private func panelView() -> some View {
         HStack(spacing: 50) {
-            Text("Rendered after \(viewModel.attempts) attempts")
+            Text("Processing time: \(viewModel.duration) sec")
             
             Button {
                 viewModel.redo()
@@ -79,7 +79,7 @@ struct ContentView<VM: WFCViewModel>: View {
 
 #Preview {
     class MockVM: WFCViewModel {
-        let attempts: Int = 0
+        let duration: Int = 0
         let state: ContentViewState = .ready
         var error: Error? = nil
         

@@ -11,6 +11,15 @@ import DequeModule
 typealias TileNameSet = Set<TileName>
 
 struct WaveFunctionCollapse {
+    private struct State {
+        let grid: [Cell]
+        let fittestCellIndices: Set<Int>
+    }
+    
+    private enum Mode {
+        case normal, backtrack
+    }
+    
     private(set) var tiles: [TileName: Tile] = [:]
     private(set) var grid: [Cell] = []
     let size: Size
@@ -29,21 +38,7 @@ struct WaveFunctionCollapse {
         tiles = Dictionary(uniqueKeysWithValues: sequence)
         reset()
     }
-    
-    mutating func startWithRetry() -> Int {
-        var attempts = 0
-        while true {
-            attempts += 1
-            do {
-                try start()
-                break
-            } catch {
-                reset()
-            }
-        }
-        return attempts
-    }
-    
+        
     mutating func reset() {
         self.grid = [Cell].init(
             repeating: defaultCell(),
@@ -59,64 +54,98 @@ struct WaveFunctionCollapse {
     func tile(for name: String) -> Tile? {
         tiles[name]
     }
-            
-    private mutating func start() throws {
-        while let index = getFittestCellIndex() {
-            // collapse picked cell
-            guard let option = grid[index].options.randomElement() else {
-                break
+    
+    mutating func start() throws {
+        var states: [State] = []
+        var mode: Mode = .normal
+        while true {
+            var indices: Set<Int>
+            switch mode {
+            case .normal:
+                indices = getFittestCellIndices()
+            case .backtrack:
+                guard let state = states.popLast() else {
+                    throw WFCError.invalidState
+                }
+                guard !state.fittestCellIndices.isEmpty else {
+                    continue
+                }
+                self.grid = state.grid
+                indices = state.fittestCellIndices
+                mode = .normal
             }
-            grid[index].options = [option]
-
-            var affected: Deque<Position> = Deque(
-                Position
-                    .from(index: index, of: size)
-                    .adjacent(in: size)
+            
+            guard let index = indices.randomElement(),
+                  let option = grid[index].options.randomElement() else {
+                return
+            }
+            
+            indices.remove(index)
+            let state = State(
+                grid: grid,
+                fittestCellIndices: indices
             )
-            while let position = affected.popFirst() {
-                let i = position.index(in: size)
-                guard !grid[i].isCollapsed else {
-                    continue
-                }
-                guard let options = updatedOptions(for: position),
-                      !options.isEmpty else {
-                    throw WFCError.uncollapsible
-                }
-                guard options.count < grid[i].options.count else {
-                    continue
-                }
-                grid[i].options = options
-                position
-                    .adjacent(in: size)
-                    .forEach {
-                        affected.append($0)
-                    }
+            states.append(state)
+            grid[index].options = [option]
+            
+            do {
+                try updateAffectedCells(at: index)
+            } catch {
+                mode = .backtrack
             }
         }
     }
+        
+    private mutating func updateAffectedCells(at index: Int) throws {
+        var affected: Deque<Position> = Deque(
+            Position
+                .from(index: index, of: size)
+                .adjacent(in: size)
+        )
+        var seen: Set<Int> = []
+        while let position = affected.popFirst() {
+            let i = position.index(in: size)
+            guard !seen.contains(i), !grid[i].isCollapsed else {
+                continue
+            }
+            seen.insert(i)
+            guard let options = updatedOptions(for: position),
+                  !options.isEmpty else {
+                throw WFCError.uncollapsible
+            }
+            guard options.count < grid[i].options.count else {
+                continue
+            }
+            grid[i].options = options
+            position
+                .adjacent(in: size)
+                .forEach {
+                    affected.append($0)
+                }
+        }
+    }
     
-    private func getFittestCellIndex() -> Int? {
+    private func getFittestCellIndices() -> Set<Int> {
         // candidate's indices with min entropy
-        var indices: [Int] = []
-        indices.reserveCapacity(size.count)
+        var indices: Set<Int> = []
         for (idx, cell) in grid.enumerated() {
             let cellEntropy = cell.entropy
             guard cellEntropy > 1 else {
                 continue
             }
             guard let storedIndex = indices.first else {
-                indices.append(idx)
+                indices.insert(idx)
                 continue
             }
             let minEntropy = grid[storedIndex].entropy
             if minEntropy == cellEntropy {
-                indices.append(idx)
+                indices.insert(idx)
             } else if minEntropy < cellEntropy {
                 indices.removeAll()
-                indices.append(idx)
+                indices.insert(idx)
             }
         }
-        return indices.randomElement()
+        return indices
     }
     
     private mutating func updatedOptions(for position: Position) -> TileNameSet? {
