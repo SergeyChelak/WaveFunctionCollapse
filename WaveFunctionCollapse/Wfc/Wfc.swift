@@ -22,23 +22,21 @@ struct WaveFunctionCollapse {
     
     private(set) var tiles: [TileName: Tile] = [:]
     private(set) var grid: [Cell] = []
-    let size: Size
-    private var dataSource: DataSource
-    
-    init(dataSource: DataSource, rows: Int, cols: Int) {
-        self.dataSource = dataSource
+    private(set) var size: Size = .zero()
+        
+    public mutating func setSize(rows: Int, cols: Int) {
         self.size = Size(rows: rows, cols: cols)
     }
     
-    mutating func load() throws {
-        let sequence = try dataSource.fetchTiles()
+    public mutating func setTiles(_ tiles: [Tile]) {
+        let sequence = tiles
             .map {
                 ($0.name, $0)
             }
-        tiles = Dictionary(uniqueKeysWithValues: sequence)
+        self.tiles = Dictionary(uniqueKeysWithValues: sequence)
         reset()
     }
-        
+
     mutating func reset() {
         self.grid = [Cell].init(
             repeating: defaultCell(),

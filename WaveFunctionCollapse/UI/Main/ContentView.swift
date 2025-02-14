@@ -12,7 +12,7 @@ struct ContentView<VM: WFCViewModel>: View {
     var viewModel: VM
     
     private var columns: [GridItem] {
-        (0..<viewModel.cols)
+        (0..<viewModel.columns)
             .map { _ in
                 GridItem(.fixed(46))
             }
@@ -61,19 +61,38 @@ struct ContentView<VM: WFCViewModel>: View {
     }
     
     private func panelView() -> some View {
-        HStack(spacing: 50) {
-            Text("Processing time: \(viewModel.duration) sec")
-            
-            Button {
-                viewModel.redo()
-            } label: {
-                Text("Redo")
+        VStack {
+            HStack(spacing: 20) {
+                TextField("Rows", text: $viewModel.inputRows)
+                    .frame(maxWidth: 100)
+#if os(iOS)
+                    .keyboardType(.decimalPad)
+#endif
+                
+                TextField("Cols", text: $viewModel.inputCols)
+                    .frame(maxWidth: 100)
+#if os(iOS)
+                    .keyboardType(.decimalPad)
+#endif
+                Button {
+                    viewModel.start()
+                } label: {
+                    Text("Start")
+                }
             }
+            
+            Text("Processing time: \(viewModel.duration) sec")
         }
     }
     
     private func errorView(_ error: Error) -> some View {
-        Text(error.localizedDescription)
+        VStack {
+            panelView()
+            Spacer()
+            Text(error.localizedDescription)
+                .foregroundStyle(Color.red)
+            Spacer()
+        }
     }
 }
 
@@ -82,19 +101,10 @@ struct ContentView<VM: WFCViewModel>: View {
         let duration: Int = 0
         let state: ContentViewState = .ready
         var error: Error? = nil
-        
-        var rows: Int {
-            0
-        }
-        
-        var cols: Int {
-            0
-        }
-        
-        func redo() {
-            //
-        }
-        
+        var inputRows: String = ""
+        var inputCols: String = ""
+        let columns: Int = 0
+
         func start() {
             //
         }

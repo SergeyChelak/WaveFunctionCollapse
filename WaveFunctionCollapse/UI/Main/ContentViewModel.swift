@@ -7,20 +7,14 @@
 
 import Foundation
 
-enum CellModel {
-    case collapsed(Tile)
-    case invalid
-    case superposition(Int)
-}
-
 protocol WFCViewModel: ObservableObject {
     var state: ContentViewState { get }
     var duration: Int { get }
-    var rows: Int { get }
-    var cols: Int { get }
+    var inputRows: String { get set }
+    var inputCols: String { get set }
+    var columns: Int { get }
     var cells: [CellModel] { get }
     var error: Error? { get }
-    func redo()
     func start()
     func load()
 }
@@ -30,7 +24,6 @@ enum ContentViewState {
 }
 
 class ContentViewModel: WFCViewModel {
-    private var wfc: WaveFunctionCollapse
     @Published
     private(set) var error: Error?
     @Published
@@ -38,26 +31,30 @@ class ContentViewModel: WFCViewModel {
     @Published
     private(set) var state: ContentViewState = .ready
     
+    @Published
+    var inputRows: String = ""
+    @Published
+    var inputCols: String = ""
+    
+    private(set) var columns: Int = 0
+
     private(set) var duration: Int = 0
     
-    var rows: Int {
-        wfc.size.rows
-    }
+    private let flow: MainFlow
     
-    var cols: Int {
-        wfc.size.cols
+    init(flow: MainFlow) {
+        self.flow = flow
     }
-    
-    init(wfc: WaveFunctionCollapse) {
-        self.wfc = wfc
-    }
-    
-    func redo() {
-        wfc.reset()
-        start()
-    }
-    
+        
     func start() {
+        self.state = .ready
+        self.error = nil
+        do {
+            try saveParameters()
+        } catch {
+            self.error = error
+            return
+        }
         self.state = .loading
         Task {
             await processWfc()
@@ -67,50 +64,53 @@ class ContentViewModel: WFCViewModel {
     private func processWfc() async {
         let start = Date()
         do {
-            try wfc.start()
+            let result = try await flow.start()
+            let duration = Int(Date().timeIntervalSince(start))
+            Task { @MainActor in
+                self.duration = duration
+                self.cells = result
+                self.state = .ready
+            }
         } catch {
             Task { @MainActor in
+                self.duration = duration
                 self.error = error
             }
             return
-        }
-        let result = wfc.grid
-            .map {
-                let count = $0.options.count
-                return switch count {
-                case 0:
-                    CellModel.invalid
-                case 1:
-                    if let first = $0.options.first,
-                       let tile = wfc.tile(for: first) {
-                        CellModel.collapsed(tile)
-                    } else {
-                        CellModel.invalid
-                    }
-                default:
-                    CellModel.superposition(count)
-                }
-            }
-        
-        
-        Task { @MainActor in
-            let duration = Date().timeIntervalSince(start)
-            self.duration = Int(duration)
-            self.cells = result
-            self.state = .ready
         }
     }
     
     func load() {
         self.state = .loading
+        loadParameters()
         Task {
-            await loadAndStart()
+            await setupAndStart()
         }
     }
     
-    private func loadAndStart() async {
-        do {
-            try wfc.load()
+    func loadParameters() {
+        let params = flow.loadParameters()
+        self.columns = params.cols
+        self.inputRows = String(params.rows)
+        self.inputCols = String(params.cols)
+    }
+    
+    func saveParameters() throws {
+        guard let r = Int(inputRows),
+              let c = Int(inputCols) else {
+            throw WFCError.invalidInput
+        }
+        let params = Parameters(
+            rows: r,
+            cols: c
+        )
+        self.columns = c
+        flow.saveParameters(params)
+    }
+    
+    private func setupAndStart() async {
+        do {            
+            try await flow.setup()
             await processWfc()
         } catch {
             Task { @MainActor in

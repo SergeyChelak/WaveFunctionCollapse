@@ -14,4 +14,8 @@ struct Size {
     var count: Int {
         rows * cols
     }
+    
+    static func zero() -> Self {
+        Self(rows: 0, cols: 0)
+    }
 }

@@ -12,11 +12,16 @@ class WFCFactory: Factory {
     private let rows = 70
     private let cols = 70
     
-    private let dataSource = TileDataSource(filename: "tiles")
+    private lazy var dataSource: DataSource = {
+        TileDataSource(filename: "tiles")
+    }()
+    
+    private lazy var flow: MainFlow = {
+        MainFlow(dataSource: dataSource)
+    }()
 
     func rootView() -> AnyView {
-        let wfc = WaveFunctionCollapse(dataSource: dataSource, rows: rows, cols: cols)
-        let viewModel = ContentViewModel(wfc: wfc)
+        let viewModel = ContentViewModel(flow: flow)
         let view = ContentView(viewModel: viewModel)
         return AnyView(view)
     }

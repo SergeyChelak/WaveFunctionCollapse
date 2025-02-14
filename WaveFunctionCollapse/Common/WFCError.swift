@@ -11,4 +11,5 @@ enum WFCError: Error {
     case fileNotFound
     case uncollapsible
     case invalidState
+    case invalidInput
 }
