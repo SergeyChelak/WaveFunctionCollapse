@@ -15,7 +15,5 @@ struct Size {
         rows * cols
     }
     
-    static func zero() -> Self {
-        Self(rows: 0, cols: 0)
-    }
+    static let zero = Self(rows: 0, cols: 0)
 }

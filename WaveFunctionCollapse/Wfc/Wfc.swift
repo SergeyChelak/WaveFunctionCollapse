@@ -8,8 +8,6 @@
 import Foundation
 import DequeModule
 
-typealias TileNameSet = Set<TileName>
-
 struct WaveFunctionCollapse {
     private struct State {
         let grid: [Cell]
@@ -20,9 +18,11 @@ struct WaveFunctionCollapse {
         case normal, backtrack
     }
     
+    private typealias TileNameSet = Set<TileName>
+    
     private(set) var tiles: [TileName: Tile] = [:]
     private(set) var grid: [Cell] = []
-    private(set) var size: Size = .zero()
+    private(set) var size: Size = .zero
         
     public mutating func setSize(rows: Int, cols: Int) {
         self.size = Size(rows: rows, cols: cols)
