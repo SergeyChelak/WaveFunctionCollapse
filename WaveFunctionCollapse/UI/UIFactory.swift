@@ -9,8 +9,8 @@ import Foundation
 import SwiftUI
 
 class WFCFactory: Factory {
-    private let rows = 17
-    private let cols = 28
+    private let rows = 50
+    private let cols = 50
     
     private let dataSource = TileDataSource(filename: "tiles")
 

@@ -68,7 +68,6 @@ struct WaveFunctionCollapse {
             }
             grid[index].options = [option]
 
-            var seen: Set<Int> = [index]
             var affected: Deque<Position> = Deque(
                 Position
                     .from(index: index, of: size)
@@ -76,15 +75,14 @@ struct WaveFunctionCollapse {
             )
             while let position = affected.popFirst() {
                 let i = position.index(in: size)
-                guard !seen.contains(i), !grid[i].isCollapsed else {
+                guard !grid[i].isCollapsed else {
                     continue
                 }
-                seen.insert(i)
                 guard let options = updatedOptions(for: position),
                       !options.isEmpty else {
                     throw WFCError.uncollapsible
                 }
-                if options == grid[i].options {
+                guard options.count < grid[i].options.count else {
                     continue
                 }
                 grid[i].options = options
