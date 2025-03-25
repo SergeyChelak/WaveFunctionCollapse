@@ -138,7 +138,7 @@ struct WaveFunctionCollapse {
             let minEntropy = grid[storedIndex].entropy
             if minEntropy == cellEntropy {
                 indices.insert(idx)
-            } else if minEntropy < cellEntropy {
+            } else if minEntropy > cellEntropy {
                 indices.removeAll()
                 indices.insert(idx)
             }
