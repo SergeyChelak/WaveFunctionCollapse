@@ -30,7 +30,7 @@ struct TileDataSource: DataSource {
     }
 }
 
-fileprivate func rotate(tiles: [Tile]) -> [Tile] {
+func rotate(tiles: [Tile]) -> [Tile] {
     var output: [Tile] = []
     for tile in tiles {
         var keys: Set<TileName> = []
@@ -107,7 +107,7 @@ fileprivate extension Tile {
     
     func rotated(times: Int) -> Self {
         let rotation = self.rotation.rotated(times)
-        let edges = [upEdge, rightEdge, downEdge, leftEdge].rotate(times: times)
+        let edges = allEdges.rotate(times: times)
         let name = modified(name: self.name, for: rotation)
         return Tile(
             name: name,
@@ -120,8 +120,12 @@ fileprivate extension Tile {
         )
     }
     
+    var allEdges: [TileName] {
+        [upEdge, rightEdge, downEdge, leftEdge]
+    }
+    
     var joinedEdges: String {
-        [upEdge, rightEdge, downEdge, leftEdge].joined(separator: "||")
+        allEdges.joined(separator: "||")
     }
 }
 
